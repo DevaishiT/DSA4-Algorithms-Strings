@@ -34,11 +34,48 @@ int letterToIndex (char letter)
 	}
 }
 
+void insert(vector<Node> &trie, string pattern)
+{
+	int curr = 0;
+	for (int i = 0; i < pattern.length(); i++)
+	{
+		if (curr >= trie.size()) trie.resize(trie.size() + 1);
+		int ind = letterToIndex(pattern[i]);
+		if (trie[curr].next[ind] == NA)
+		{
+			trie[curr].next[ind] = trie.size();
+			trie.resize(trie.size()+1);
+		}
+		curr = trie[curr].next[ind];
+	}
+	trie[curr].patternEnd = true;
+	return;
+}
+
+bool prefixMatch(const string& text, const vector<Node> &trie, vector<int> result)
+{
+	int curr = 0;
+	for (int i = 0; i < text.length(); i++)
+	{
+		int ind = letterToIndex(text[i]);
+		if (trie[curr].next[ind] == NA) break;
+		curr = trie[curr].next[ind];
+		if (trie[curr].patternEnd) return true;
+	}
+	return false;
+}
+
 vector <int> solve (string text, int n, vector <string> patterns)
 {
 	vector <int> result;
 
 	// write your code here
+	vector<Node> trie;
+	for(int i=0; i<patterns.size(); i++)
+		insert(trie, patterns[i]);
+
+	for(int i=0; i<text.length(); i++)
+		if (prefixMatch(text.substr(i), trie, result)) result.push_back(i);
 
 	return result;
 }
@@ -46,7 +83,7 @@ vector <int> solve (string text, int n, vector <string> patterns)
 int main (void)
 {
 	string t;
-	cin >> text;
+	cin >> t;
 
 	int n;
 	cin >> n;
@@ -58,7 +95,7 @@ int main (void)
 	}
 
 	vector <int> ans;
-	ans = solve (t, n, s);
+	ans = solve (t, n, patterns);
 
 	for (int i = 0; i < (int) ans.size (); i++)
 	{
